@@ -1,0 +1,19 @@
+{
+  "name": "moment-web-ble",
+  "version": "0.0.1",
+  "description": "Access the Moment SDK via Chrome Web Bluetooth",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SomaticLabs/moment-web-ble.git"
+  },
+  "author": "Somatic Labs",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SomaticLabs/moment-web-ble/issues"
+  },
+  "homepage": "https://github.com/SomaticLabs/moment-web-ble#readme"
+}
