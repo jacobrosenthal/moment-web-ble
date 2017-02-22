@@ -2,10 +2,20 @@
   "name": "moment-web-ble",
   "version": "0.0.1",
   "description": "Access the Moment SDK via Chrome Web Bluetooth",
-  "main": "index.js",
+  "main": "gulpfile.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/mocha/bin/mocha",
+    "generate-docs": "./node_modules/.bin/jsdoc -c jsdoc.json -R README.md",
+    "compile": "gulp compile"
   },
+  "dependencies": {
+    "docdash": "https://github.com/SomaticLabs/docdash",
+    "google-closure-compiler": "^20161201.0.0",
+    "gulp": "^3.9.1",
+    "jsdoc": "^3.4.3",
+    "mocha": "^3.2.0"
+  },
+  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SomaticLabs/moment-web-ble.git"
