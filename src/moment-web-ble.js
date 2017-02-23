@@ -193,6 +193,7 @@ Device['prototype']['connect'] = function () {
   * device.disconnect();
   */
 Device['prototype']['run'] = function (code) {
+    code = code + "\0";
     var chunks = chunkString(code, 19); // split code into packets
     writeCode(this, chunks);
 };
