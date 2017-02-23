@@ -10,9 +10,9 @@
   */
 var Moment = global['Moment'] = global['Moment'] || {};
 
-var HTS_UUID =    '00009B69-58FD-0A19-9B69-4CF88FC7B8DA',
-    JSU_UUID =    '6E400001-B5A3-F393-E0A9-E50E24DCCA9E',
-    JSU_RX_UUID = '6E400002-B5A3-F393-E0A9-E50E24DCCA9E';
+var HTS_UUID =    '00009b69-58fd-0a19-9b69-4cf88fc7b8da',
+    JSU_UUID =    '6e400001-b5A3-f393-e0a9-e50e24dcca9e',
+    JSU_RX_UUID = '6e400002-b5A3-f393-e0a9-e50e24dcca9e';
 
 // This function keeps calling "toTry" until promise resolves or has
 // retried "max" number of times. First retry has a delay of "delay" seconds.
