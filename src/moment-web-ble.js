@@ -8,10 +8,11 @@
   * @name Moment
   * @namespace
   */
-global['Moment'] = global['Moment'] || {};
-var Moment = global['Moment'];
+var Moment = global['Moment'] = global['Moment'] || {};
 
-Moment['_device'] = false;
+var HTS_UUID =    '00009B69-58FD-0A19-9B69-4CF88FC7B8DA',
+    JSU_UUID =    '6E400001-B5A3-F393-E0A9-E50E24DCCA9E',
+    JSU_RX_UUID = '6E400002-B5A3-F393-E0A9-E50E24DCCA9E';
 
 // This function keeps calling "toTry" until promise resolves or has
 // retried "max" number of times. First retry has a delay of "delay" seconds.
@@ -30,17 +31,20 @@ function exponentialBackoff(max, delay, toTry, success, fail) {
     );
 }
 
-function connect() {
-    exponentialBackoff(3 /* max retries */, 2 /* seconds delay */,
+function connect(self) {
+    exponentialBackoff(10 /* max retries */, 2 /* seconds delay */,
         function toTry() {
             console.log('Connecting to Bluetooth Device... ');
-            return Moment['_device'].gatt.connect();
+            return self.device.gatt.connect();
         },
-        function success() {
+        function success(server) {
             console.log('> Bluetooth Device connected. Try disconnect it now.');
+            self.gatt_server = server;
+            getService(self);
         },
         function fail() {
             console.log('Failed to reconnect.');
+            self.gatt_server = false;
         }
     );
 }
@@ -49,33 +53,105 @@ function onDisconnected() {
     connect();
 }
 
-/** Connect to Moment with automatic retry after a while.
-  *
-  * @memberof Moment
-  * @name Moment.connect
-  * @method
-  * @static
-  *
-  * @example
-  * // connect to Moment
-  * Moment.connect();
-  */
-Moment['connect'] = function () {
+function getService(self) {
+    exponentialBackoff(10 /* max retries */, 2 /* seconds delay */,
+        function toTry() {
+            console.log('Getting JS UART Service... ');
+            return self.gatt_server.getPrimaryService(JSU_UUID);
+        },
+        function success(service) {
+            console.log('> JS UART Service Obtained.');
+            self.js_uart_service = service;
+            getCharacteristic(self);
+        },
+        function fail() {
+            console.log('Failed to get JS UART Service.');
+            self.js_uart_service = false;
+        }
+    );
+}
+
+function getCharacteristic(self) {
+    exponentialBackoff(10 /* max retries */, 2 /* seconds delay */,
+        function toTry() {
+            console.log('Getting JS UART Characteristic... ');
+            return self.gatt_server.getCharacteristic(JSU_RX_UUID);
+        },
+        function success(characteristic) {
+            console.log('> JS UART Characteristic Obtained.');
+            self.js_uart_char = characteristic;
+        },
+        function fail() {
+            console.log('Failed to get JS UART Characteristic.');
+            self.js_uart_char = false;
+        }
+    );
+}
+
+function chunkString(str, len) {
+    var size = str.length / len + .5 | 0,
+        ret  = new Array(size),
+        offset = 0;
+
+    for(var i = 0; i < size; ++i, offset += len) {
+      ret[i] = str.substring(offset, offset + len);
+    }
+
+    return ret;
+}
+
+function writeCode(self, chunks) {
+    if (chunks.length == 0)
+        return;
+
+    var chunk = Uint8Array.from(chunks.shift());
+    exponentialBackoff(10 /* max retries */, 2 /* seconds delay */,
+        function toTry() {
+            console.log('Writing JS UART Characteristic... ');
+            return self.js_uart_char.writeValue(chunk);
+        },
+        function success(characteristic) {
+            console.log('> JS UART Characteristic Written.');
+            writeCode(self, chunks);
+        },
+        function fail() {
+            console.log('Failed to write JS UART Characteristic.');
+        }
+    );
+}
+
+function Device() {
+    this.device = false;
+    this.gatt_server = false;
+    this.js_uart_service = false;
+    this.js_uart_char = false;
+}
+
+Device['prototype']['connect'] = function () {
+    var self = this;
+
     var request = navigator.bluetooth.requestDevice({
         'filters': [{
-          'services': ['00009B69-58FD-0A19-9B69-4CF88FC7B8DA']
+          'services': [HTS_UUID]
         }]
     });
 
     request.then(function (device) {
-        Moment['_device'] = device;
+        self.device = device;
         device.addEventListener('gattserverdisconnected', onDisconnected);
-        connect();
+        connect(self);
     });
 
     request.catch(function (error) {
-        Moment['_device'] = false;
+        self.device = false;
     });
 };
+
+Device['prototype']['run'] = function (code) {
+    var chunks = chunkString(code, 19); // split code into packets
+    writeCode(this, chunks);
+};
+
+Moment['Device'] = Device;
 
 })(Function('return this')());
