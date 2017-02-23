@@ -48,6 +48,17 @@ function onDisconnected() {
     connect();
 }
 
+/** Connect to Moment with automatic retry after a while.
+  *
+  * @memberof Moment
+  * @name Moment.connect
+  * @method
+  * @static
+  *
+  * @example
+  * // connect to Moment
+  * Moment.connect();
+  */
 Moment['connect'] = function () {
     var request = navigator.bluetooth.requestDevice({
         'filters': [{
