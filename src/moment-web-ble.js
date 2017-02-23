@@ -120,6 +120,21 @@ function writeCode(self, chunks) {
     );
 }
 
+/** Represents a Moment device connection from the browser, and provides
+  * methods for connecting and executing JavaScript code on Moment using
+  * the features provided by the Moment SDK.
+  *
+  * @constructor
+  * @memberof Moment
+  * @name Moment.Device
+  *
+  * @example
+  * // connect to device
+  * var device = new Moment.Device();
+  * device.connect();
+  * device.run("5 + 5;"); // execute JavaScript code on Moment
+  * device.disconnect();
+  */
 function Device() {
     this.device = false;
     this.gatt_server = false;
@@ -127,6 +142,21 @@ function Device() {
     this.js_uart_char = false;
 }
 
+/** This method connects to the first available Moment device that is
+  * advertising nearby.
+  *
+  * @memberof Moment.Device
+  * @name Moment.Device.connect
+  * @public
+  * @method
+  *
+  * @example
+  * // connect to device
+  * var device = new Moment.Device();
+  * device.connect();
+  * device.run("5 + 5;"); // execute JavaScript code on Moment
+  * device.disconnect();
+  */
 Device['prototype']['connect'] = function () {
     var self = this;
 
@@ -147,9 +177,42 @@ Device['prototype']['connect'] = function () {
     });
 };
 
+/** This method runs JavaScript code on Moment by sending the relevant code
+  * via BLE.
+  *
+  * @memberof Moment.Device
+  * @name Moment.Device.run
+  * @public
+  * @method
+  *
+  * @example
+  * // connect to device
+  * var device = new Moment.Device();
+  * device.connect();
+  * device.run("5 + 5;"); // execute JavaScript code on Moment
+  * device.disconnect();
+  */
 Device['prototype']['run'] = function (code) {
     var chunks = chunkString(code, 19); // split code into packets
     writeCode(this, chunks);
+};
+
+/** This method disconnects from Moment.
+  *
+  * @memberof Moment.Device
+  * @name Moment.Device.disconnect
+  * @public
+  * @method
+  *
+  * @example
+  * // connect to device
+  * var device = new Moment.Device();
+  * device.connect();
+  * device.run("5 + 5;"); // execute JavaScript code on Moment
+  * device.disconnect();
+  */
+Device['prototype']['disconnect'] = function (code) {
+    this.device.gatt.disconnect();
 };
 
 Moment['Device'] = Device;
