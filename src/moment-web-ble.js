@@ -9,6 +9,7 @@
   * @namespace
   */
 global['Moment'] = global['Moment'] || {};
+var Moment = global['Moment'];
 
 Moment['_device'] = false;
 
@@ -21,7 +22,7 @@ function exponentialBackoff(max, delay, toTry, success, fail) {
             if (max === 0) {
                 return fail();
             }
-            time('Retrying in ' + delay + 's... (' + max + ' tries left)');
+            console.log('Retrying in ' + delay + 's... (' + max + ' tries left)');
             setTimeout(function() {
                 exponentialBackoff(--max, delay * 2, toTry, success, fail);
             }, delay * 1000);
@@ -32,14 +33,14 @@ function exponentialBackoff(max, delay, toTry, success, fail) {
 function connect() {
     exponentialBackoff(3 /* max retries */, 2 /* seconds delay */,
         function toTry() {
-            time('Connecting to Bluetooth Device... ');
-            return bluetoothDevice.gatt.connect();
+            console.log('Connecting to Bluetooth Device... ');
+            return Moment['_device'].gatt.connect();
         },
         function success() {
-            log('> Bluetooth Device connected. Try disconnect it now.');
+            console.log('> Bluetooth Device connected. Try disconnect it now.');
         },
         function fail() {
-            time('Failed to reconnect.');
+            console.log('Failed to reconnect.');
         }
     );
 }
@@ -68,7 +69,7 @@ Moment['connect'] = function () {
 
     request.then(function (device) {
         Moment['_device'] = device;
-        bluetoothDevice.addEventListener('gattserverdisconnected', onDisconnected);
+        device.addEventListener('gattserverdisconnected', onDisconnected);
         connect();
     });
 
