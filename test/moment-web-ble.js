@@ -8,4 +8,10 @@ describe('Moment global object', function () {
 			assert.ok(Moment);
 		});
 	});
+
+	describe('#Moment.connect', function () {
+		it('must exist as a property of the Moment object', function () {
+			assert.ok(Moment.hasOwnProperty('connect'));
+		});
+	});
 });
